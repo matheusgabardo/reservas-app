@@ -1,12 +1,12 @@
-import { SafeAreaView, View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView, View, TextInput, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Redirect, router } from 'expo-router';
+import { Link, Redirect, router } from 'expo-router';
 import TextCustom from './components/TextCustom';
 
 export default function LoginScreen() {
   const { user, login } = useAuth();
-  const [email, setEmail] = useState('admin@mail.dev');
+  const [email, setEmail] = useState('user@mail.dev');
   const [password, setPassword] = useState('password');
 
   if (user) {
@@ -24,10 +24,16 @@ export default function LoginScreen() {
 
   return (
     <View  style={styles.container}>
-      <View>
-        <SafeAreaView style={styles.container}>
-          <TextCustom style={styles.headline} fontSize={72}>Login</TextCustom>
-
+      <View style={styles.logoWrapper}>
+        <Image
+            source={require('@/assets/images/bbroom-logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+        />
+      </View>
+      <View style={styles.card}>
+        <SafeAreaView>
+          <TextCustom style={styles.headline} fontSize={38}>Login</TextCustom>
           <TextCustom style={styles.label}>Email:</TextCustom>
           <TextInput
             placeholder='Enter your email...'
@@ -48,6 +54,9 @@ export default function LoginScreen() {
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
+          <View style={styles.redirectWrapper}>
+            <Text style={styles.redirectText}>Ainda não possuí uma conta? <Link style={styles.redirectLink} href={'/register'}>Ir para registro</Link></Text>
+          </View>
         </SafeAreaView>
       </View>
     </View>
@@ -59,10 +68,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: '#171717'
+  },
+  card: {
+    backgroundColor: '#262626',
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#2f3237",
+    borderRadius: 8,
   },
   headline: {
     textAlign: 'center',
-    marginBottom: 50,
+    marginBottom: 25,
     fontWeight: '700',
     color: '#fff',
   },
@@ -88,5 +105,23 @@ const styles = StyleSheet.create({
   },
   label: {
     color: '#fff',
+  },
+  logoWrapper:{
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  logo: {
+    width: 150,
+    height: 100
+  },
+  redirectWrapper: {
+    marginTop: 16, 
+  },
+  redirectText:{
+    color: '#fff'
+  },
+  redirectLink:{
+    color: '#ffc11e'
   },
 });

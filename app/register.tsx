@@ -1,8 +1,9 @@
-import { SafeAreaView, View,  TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { SafeAreaView, View,  TextInput, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
 import {useState} from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { Redirect } from 'expo-router'
 import TextCustom from '@/app/components/TextCustom'
+import { Link } from "expo-router";
 
 export default function RegisterScreen() {
   const { user, register } = useAuth();
@@ -23,11 +24,17 @@ export default function RegisterScreen() {
     return <Redirect href="/dashboard" />;
   }
   return (
-
-      <View  style={styles.container}>
-        <View>
-          <TextCustom style={styles.headline} fontSize={72}>Registro</TextCustom>
-
+    <View  style={styles.container}>
+      <View style={styles.logoWrapper}>
+        <Image
+            source={require('@/assets/images/bbroom-logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+        />
+      </View>
+      <View style={styles.card}>
+        <SafeAreaView>
+          <TextCustom style={styles.headline} fontSize={38}>Registro</TextCustom>
           <TextCustom style={styles.label}>Nome completo</TextCustom>
           <TextInput 
             placeholder='Digite seu nome' 
@@ -68,47 +75,74 @@ export default function RegisterScreen() {
           >
             <Text style={styles.buttonText}>Criar conta</Text>
           </TouchableOpacity>
+          <View style={styles.redirectWrapper}>
+            <Text style={styles.redirectText}>Já possuí uma conta? <Link style={styles.redirectLink} href={'/login'}>Ir para login</Link></Text>
           </View>
+        </SafeAreaView>
       </View>
+    </View>
 
   )
 }
-
 const styles = StyleSheet.create({
   container: {
-    flex:1,
+    flex: 1,
     padding: 20,
     justifyContent: 'center',
+    backgroundColor: '#171717'
   },
-  headline:{
-    textAlign:'center',
-    marginTop:-100,
-    marginBottom:50,
-    fontWeight:700,
-    color: '#fff'
+  card: {
+    backgroundColor: '#262626',
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#2f3237",
+    borderRadius: 8,
   },
-  input:{
-    borderWidth:1,
-    borderRadius:10, 
-    padding:10,
-
-    marginTop:10,
-    marginBottom:10,
-    borderColor:"grey",
-    color: '#fff'
+  headline: {
+    textAlign: 'center',
+    marginBottom: 25,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    borderColor: 'grey',
+    color: '#fff',
   },
   button: {
     backgroundColor: 'black',
     padding: 12,
     borderRadius: 6,
     alignItems: 'center',
-    marginTop:10,
+    marginTop: 10,
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
   },
-  label:{
+  label: {
     color: '#fff',
-  }
-})
+  },
+  logoWrapper:{
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  logo: {
+    width: 150,
+    height: 100
+  },
+  redirectWrapper: {
+    marginTop: 16, 
+  },
+  redirectText:{
+    color: '#fff'
+  },
+  redirectLink:{
+    color: '#ffc11e'
+  },
+});
