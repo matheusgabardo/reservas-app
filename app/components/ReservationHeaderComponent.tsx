@@ -8,18 +8,14 @@ export default function HeaderComponent() {
     return (
         <>
             <View style={styles.header}>
-                <Link href={'/(app)/dashboard'} style={styles.navbarItem}>
+                <Link href={'/(app)/dashboard'} style={styles.returnButton}>
                     <Image
-                        source={require('@/assets/images/bbroom-logo.png')}
-                        style={styles.logo}
+                        source={require('@/assets/images/left-arrow-white.png')}
+                        style={styles.arrowIcon}
                         resizeMode="contain"
                     />
+                    Voltar
                 </Link>
-                <View style={styles.navbar}>
-                    <Link href={'/(app)/dashboard'} style={styles.navbarItem}>Dashboard</Link>
-                    <Link href={'/(app)/reservation'} style={styles.navbarItem}>Reserva</Link>
-                    <Text style={styles.logout} onPress={logout}>Sair</Text>
-                </View>
             </View>
         </>
     );
@@ -38,9 +34,9 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold'
     },
-    logo: {
-        width: 80,
-        height: 40
+    arrowIcon: {
+        width: 50,
+        height: 25
     },
     navbar: {
         flexDirection: 'row',
@@ -48,12 +44,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,
     },
-    navbarItem: {
+    returnButton: {
         color: '#fff',
         fontSize: 14,
-    },
-    logout: {
-        fontSize: 14,
-        color: '#ff8383'
+        display: 'flex',
+        alignItems: 'center'
     },
 })

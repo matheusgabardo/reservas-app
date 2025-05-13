@@ -4,10 +4,10 @@ export default function FooterComponent() {
     return (
         <>
             <View style={styles.footer}>
-                <Text style={styles.footerText}>
+                <Text style={styles.footerText1}>
                     © 2025
                 </Text>
-                <Text style={styles.footerText}>
+                <Text style={styles.footerText2}>
                     Programação para dispositivos móveis.
                 </Text>
             </View>
@@ -19,11 +19,19 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         padding: 8,
-        backgroundColor: '#171717'
+        backgroundColor: '#171717',
+        flexDirection: 'row',
+        gap: 8,
     },
-    footerText: {
+    footerText1: {
         fontSize: 14,
-        color: '#666',
+        color: '#fff',
+        marginBottom: 4,
+        textAlign: 'center'
+    },
+    footerText2: {
+        fontSize: 14,
+        color: '#ffc11e',
         marginBottom: 4,
         textAlign: 'center'
     },

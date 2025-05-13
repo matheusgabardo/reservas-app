@@ -5,7 +5,8 @@ import {
   Text,
   FlatList,
   Image,
-  StyleSheet
+  StyleSheet,
+  TouchableOpacity
 } from 'react-native';
 import api from '@/lib/api/axios';
 
@@ -22,6 +23,7 @@ interface Room {
 
 export default function HomeScreen() {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [showInstructions, setShowInstructions] = useState(true);
   const BASE_IMAGE_URL = 'http://localhost:8000/storage/';
 
   useEffect(() => {
@@ -43,7 +45,10 @@ export default function HomeScreen() {
   };
 
   const renderItem = ({ item }: { item: Room }) => {
-    const imageUrl = `${BASE_IMAGE_URL}${item.image}`;
+    const imageUrl = item.image.startsWith('https')
+      ? item.image
+      : `${BASE_IMAGE_URL}${item.image}`;
+
     return (
       <View style={styles.card}>
         <Image source={{ uri: imageUrl }} style={styles.image} />
@@ -61,6 +66,22 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.mainWrapper}>
+      {showInstructions && (
+        <View style={styles.instructions}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setShowInstructions(false)}
+          >
+            <Text style={styles.closeText}>×</Text>
+          </TouchableOpacity>
+          <Text style={styles.instructionTitle}>
+            Bem-vindo! <br></br>Aqui você pode reservar uma sala para seu compromisso.
+          </Text>
+          <Text style={styles.instructionStep}>
+            Passo 1: Escolha uma sala da lista:
+          </Text>
+        </View>
+      )}
       <FlatList
         data={rooms}
         keyExtractor={item => item.id.toString()}
@@ -125,5 +146,30 @@ const styles = StyleSheet.create({
   address: {
     fontSize: 12,
     color: '#888'
-  }
+  },
+  instructions: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  instructionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  instructionStep: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 1
+  },
+  closeText: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
 });
