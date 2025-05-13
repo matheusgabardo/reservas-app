@@ -1,42 +1,20 @@
-import { Text, View, SafeAreaView, StyleSheet, TouchableOpacity } from "react-native";
-import { useAuth } from "@/context/AuthContext";
+import { SafeAreaView, Text, View, Button, ScrollView, StyleSheet } from 'react-native';
+import { useAuth } from '@/context/AuthContext';
 
-
-export default function Index() {
-  const {user, session, signout} =useAuth()
+export default function HomeScreen() {
+  const { user, logout } = useAuth();
 
   return (
-    <SafeAreaView>
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={signout}
-            >
-            <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
-        <View style={styles.container}>
-            Hello {user.name}!
-        </View>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.welcome}>Bem-vindo, {user?.name}</Text>
+      <Button title="Sair" onPress={logout} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container:{
-    paddingHorizontal:20,
-
-  },
-  headline:{
-    paddingVertical:20
-  },
-    button: {
-      backgroundColor: 'black',
-      padding: 12,
-      borderRadius: 6,
-      alignItems: 'center',
-      margin:20,
-    },
-    buttonText: {
-      color: 'white',
-      fontSize: 18,
-    },
-})
+  container: { flex: 1, padding: 20 },
+  welcome: { fontSize: 18, marginBottom: 10, color: '#fff' },
+  list: { marginTop: 20 },
+  item: { fontSize: 16, marginBottom: 8 },
+});

@@ -1,7 +1,7 @@
-import {Slot, Redirect} from 'expo-router'
-import { useAuth } from '@/context/AuthContext'
+import { Slot, Redirect } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 
-export default function AppLayout(){
-    const {session} = useAuth()
-    return !session ? <Redirect  href="/login"/> : <Slot/>
+export default function DashboardLayout() {
+  const { user } = useAuth();
+  return !user ? <Redirect href="/login" /> : <Slot />;
 }

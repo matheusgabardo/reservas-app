@@ -2,30 +2,43 @@ import { SafeAreaView, View,  TextInput, Text, TouchableOpacity, StyleSheet } fr
 import {useState} from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { Redirect } from 'expo-router'
-import TextCustom from './components/TextCustom'
+import TextCustom from '@/app/components/TextCustom'
 
+export default function RegisterScreen() {
+  const { user, register } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-const signup = () => {
-    const {session, register} = useAuth()
-
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-
-    const handleSubmit = async () => {
-        register({email, password, confirmPassword})
+  const handleSubmit = async () => {
+    if (password !== confirmPassword) {
+      alert('As senhas não coincidem');
+      return;
     }
+    await register({ name, email, password, confirmPassword });
+  };
 
-    if(session) return <Redirect href="/dashboard"/>
+  if (user) {
+    return <Redirect href="/dashboard" />;
+  }
   return (
 
       <View  style={styles.container}>
         <View>
           <TextCustom style={styles.headline} fontSize={72}>Registro</TextCustom>
 
-          <TextCustom style={styles.label}>Digite seu e-mail</TextCustom>
+          <TextCustom style={styles.label}>Nome completo</TextCustom>
           <TextInput 
-            placeholder='Enter your email...' 
+            placeholder='Digite seu nome' 
+            style={styles.input}
+            value={name}
+            onChangeText={(text) => setName(text)}
+            />
+
+          <TextCustom style={styles.label}>Seu e-mail</TextCustom>
+          <TextInput 
+            placeholder='Digite seu e-mail...' 
             style={styles.input}
             value={email}
             onChangeText={(text) => setEmail(text)}
@@ -34,7 +47,7 @@ const signup = () => {
           <TextCustom style={styles.label}>Crie uma senha</TextCustom>
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="Digite sua senha"
             value={password}
             onChangeText={(text) => setPassword(text)}
             secureTextEntry
@@ -43,7 +56,7 @@ const signup = () => {
           <TextCustom style={styles.label}>Confirme sua senha</TextCustom>
           <TextInput
             style={styles.input}
-            placeholder="Password"
+            placeholder="Digite sua senha"
             value={confirmPassword}
             onChangeText={(text) => setConfirmPassword(text)}
             secureTextEntry
@@ -99,5 +112,3 @@ const styles = StyleSheet.create({
     color: '#fff',
   }
 })
-
-export default signup
