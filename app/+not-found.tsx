@@ -6,12 +6,10 @@ import { Text, View } from '@/components/Themed';
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
-
-        <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Go to home screen!</Text>
+        <Text style={styles.title}>Página não encontrada.</Text>
+        <Link href="/dashboard" style={styles.link}>
+          <Text style={styles.linkText}>Ir para a homepage</Text>
         </Link>
       </View>
     </>
