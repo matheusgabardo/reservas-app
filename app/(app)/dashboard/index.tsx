@@ -1,4 +1,3 @@
-// app/(app)/dashboard/index.tsx  (Tela do Dashboard/Home com modal de reserva)
 import { useEffect, useState } from 'react';
 import {
   SafeAreaView,
@@ -8,10 +7,10 @@ import {
   Image,
   TouchableOpacity,
   Modal,
-  TextInput,
-  Button,
-  StyleSheet
+  StyleSheet,
+  TextInput
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api/axios';
 
@@ -37,6 +36,7 @@ export default function HomeScreen() {
   const [time, setTime] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
+
   useEffect(() => {
     api.get<Room[]>('/rooms')
       .then(res => setRooms(res.data))
@@ -60,13 +60,45 @@ export default function HomeScreen() {
     setModalVisible(true);
   };
 
+  const formatDate = (text: string) => {
+    const cleaned = text.replace(/\D/g, '');
+  
+    let formatted = cleaned;
+    if (cleaned.length >= 3) {
+      formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`;
+    }
+  
+    return formatted;
+  };
+  
+  const formatTime = (text: string) => {
+    const cleaned = text.replace(/\D/g, '');
+  
+    let formatted = cleaned;
+    if (cleaned.length >= 3) {
+      formatted = `${cleaned.slice(0, 2)}:${cleaned.slice(2, 4)}`;
+    }
+  
+    return formatted;
+  };
+  
   const handleReserve = async () => {
+    if (!/^\d{2}\/\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
+      alert('Por favor, preencha a data e hora corretamente.');
+      return;
+    }
+  
     try {
+      const [day, month] = date.split('/');
+      const currentYear = new Date().getFullYear();
+      const formattedDate = `${currentYear}-${month}-${day}`; // yyyy-mm-dd
+  
       await api.post('/reservations', {
         room_id: selectedRoom?.id,
-        reservation_date: date,
+        reservation_date: formattedDate,
         reservation_time: time,
       });
+  
       alert('Reserva efetuada com sucesso!');
       setModalVisible(false);
       setDate('');
@@ -76,6 +108,7 @@ export default function HomeScreen() {
       alert('Falha ao reservar. Tente novamente.');
     }
   };
+  
 
   const renderItem = ({ item }: { item: Room }) => {
     const imageUrl = item.image.startsWith('https')
@@ -123,32 +156,40 @@ export default function HomeScreen() {
         renderItem={renderItem}
         contentContainerStyle={styles.list}
       />
-
-      {/* Modal de Reserva (Passo 2) */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{selectedRoom?.room_name}</Text>
             <Text style={styles.modalInstruction}>
-              Passo 2: Informe a data e o horário desejado
+              Passo 2: Selecione o dia e o horário
             </Text>
             <TextInput
-              placeholder="YYYY-MM-DD"
               value={date}
-              onChangeText={setDate}
+              onChangeText={(text) => setDate(formatDate(text))}
+              placeholder="Ex: 12/05"
+              keyboardType="numeric"
               style={styles.input}
             />
+
             <TextInput
-              placeholder="HH:MM"
               value={time}
-              onChangeText={setTime}
+              onChangeText={(text) => setTime(formatTime(text))}
+              placeholder="Ex: 14:30"
+              keyboardType="numeric"
               style={styles.input}
             />
+
             <View style={styles.modalButtonWrapper}>
-              <TouchableOpacity style={styles.modalCancelButton} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setModalVisible(false)}
+              >
                 <Text style={styles.reservationButtonText}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.reservationButton} onPress={handleReserve}>
+              <TouchableOpacity
+                style={styles.reservationButton}
+                onPress={handleReserve}
+              >
                 <Text style={styles.reservationButtonText}>Reservar</Text>
               </TouchableOpacity>
             </View>
@@ -161,26 +202,15 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#2f3237' },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12
-  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   welcome: { fontSize: 18, fontWeight: 'bold', color: '#fff' },
   logout: { fontSize: 14, color: 'red' },
-  instructions: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-    position: 'relative'
-  },
+  instructions: { backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 12 },
   closeButton: { position: 'absolute', top: 8, right: 8, zIndex: 1 },
   closeText: { fontSize: 18, fontWeight: 'bold' },
   instructionTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
   instructionStep: { fontSize: 14, marginBottom: 4 },
-  list: { padding: 16,  },
+  list: { padding: 16 },
   card: { marginBottom: 16, backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden', elevation: 2 },
   image: { width: '100%', height: 200 },
   content: { padding: 12 },
@@ -190,51 +220,13 @@ const styles = StyleSheet.create({
   star: { fontSize: 14, color: '#f1c40f', marginRight: 2 },
   text: { fontSize: 12, marginBottom: 2 },
   address: { fontSize: 12, color: '#888' },
-  footer: { paddingVertical: 12, alignItems: 'center' },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16
-  },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '80%', backgroundColor: '#fff', borderRadius: 8, padding: 16 },
   modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
   modalInstruction: { fontSize: 14, marginBottom: 8 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 8,
-    marginBottom: 8
-  },
-  modalButtonWrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: 8
-  },
-  reservationButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#18181b',
-    borderRadius: 4,
-    alignItems: 'center',
-    width: '50%'
-  },
-  modalCancelButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: '#c74444',
-    borderRadius: 4,
-    alignItems: 'center',
-    width: '50%'
-  },
-  reservationButtonText: {
-    color: '#ffffff',
-    fontSize: 16
-  },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 4, padding: 8, marginBottom: 8 },
+  modalButtonWrapper: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+  modalCancelButton: { flex: 1, marginRight: 8, paddingVertical: 8, backgroundColor: '#c74444', borderRadius: 4, alignItems: 'center' },
+  reservationButton: { flex: 1, marginLeft: 8, paddingVertical: 8, backgroundColor: '#18181b', borderRadius: 4, alignItems: 'center' },
+  reservationButtonText: { color: '#ffffff', fontSize: 16 }
 });
