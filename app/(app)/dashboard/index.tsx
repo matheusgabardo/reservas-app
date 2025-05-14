@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
   Modal,
   StyleSheet,
-  TextInput
+  TextInput,
+  ActivityIndicator
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api/axios';
+import { router, useRouter } from 'expo-router';
+
 
 interface Room {
   id: number;
@@ -35,7 +37,10 @@ export default function HomeScreen() {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  
 
   useEffect(() => {
     api.get<Room[]>('/rooms')
@@ -55,10 +60,26 @@ export default function HomeScreen() {
     return <View style={styles.starsContainer}>{stars}</View>;
   };
 
-  const openReservationModal = (room: Room) => {
+  const openReservationModal = async (room: Room) => {
     setSelectedRoom(room);
-    setModalVisible(true);
+    try {
+      await api.get('/reservations/active');
+      setErrorMessage('');
+      setSuccessMessage('');
+      setModalVisible(true);
+    } catch (err: any) {
+      if (err.response?.status === 422 && err.response.data.message) {
+        setErrorMessage(err.response.data.message);
+        setSuccessMessage('');
+        setModalVisible(true);
+      } else {
+        setErrorMessage('Erro ao verificar reserva ativa.');
+        setSuccessMessage('');
+        setModalVisible(true);
+      }
+    }
   };
+  
 
   const formatDate = (text: string) => {
     const cleaned = text.replace(/\D/g, '');
@@ -88,26 +109,35 @@ export default function HomeScreen() {
       return;
     }
   
+    setIsLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+  
     try {
       const [day, month] = date.split('/');
       const currentYear = new Date().getFullYear();
-      const formattedDate = `${currentYear}-${month}-${day}`; // yyyy-mm-dd
+      const formattedDate = `${currentYear}-${month}-${day}`;
   
-      await api.post('/reservations', {
+      const response = await api.post('/reservations', {
         room_id: selectedRoom?.id,
         reservation_date: formattedDate,
         reservation_time: time,
       });
   
-      alert('Reserva efetuada com sucesso!');
-      setModalVisible(false);
+      setSuccessMessage(response.data.message);
       setDate('');
       setTime('');
-    } catch (err) {
-      console.log('Erro ao reservar:', err);
-      alert('Falha ao reservar. Tente novamente.');
+    } catch (err: any) {
+      if (err.response?.status === 422) {
+        setErrorMessage(err.response.data.message);
+      } else {
+        setErrorMessage('Erro inesperado ao tentar reservar.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
+  
   
 
   const renderItem = ({ item }: { item: Room }) => {
@@ -158,42 +188,81 @@ export default function HomeScreen() {
       />
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{selectedRoom?.room_name}</Text>
-            <Text style={styles.modalInstruction}>
-              Passo 2: Selecione o dia e o horário
-            </Text>
-            <TextInput
-              value={date}
-              onChangeText={(text) => setDate(formatDate(text))}
-              placeholder="Ex: 12/05"
-              keyboardType="numeric"
-              style={styles.input}
-            />
-
-            <TextInput
-              value={time}
-              onChangeText={(text) => setTime(formatTime(text))}
-              placeholder="Ex: 14:30"
-              keyboardType="numeric"
-              style={styles.input}
-            />
-
-            <View style={styles.modalButtonWrapper}>
-              <TouchableOpacity
-                style={styles.modalCancelButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.reservationButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.reservationButton}
-                onPress={handleReserve}
-              >
-                <Text style={styles.reservationButtonText}>Reservar</Text>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#000" />
+        ) : successMessage ? (
+          <>
+            <View style={styles.successModalContent}>
+              <View style={styles.successIconWrapper}>
+                <Image
+                    source={require('@/assets/images/sucess-gif.gif')}
+                    style={styles.successIcon}
+                    resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.successText}>{successMessage}</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.button}>
+                <Text style={styles.buttonText}>Fechar</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </>
+        ): errorMessage === 'Você já possui uma reserva ativa no sistema.' ? (
+          <>
+            <View style={styles.modalContent}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setModalVisible(false);
+                  router.push('/reservation');
+                }}
+              >
+                <Text style={styles.buttonText}>Ver minha reserva</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : errorMessage ? (
+          <>
+            <View style={styles.modalContent}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setErrorMessage('');
+                }}
+              >
+                <Text style={styles.buttonText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedRoom?.room_name}</Text>
+              <Text style={styles.modalInstruction}>
+                Passo 2: Selecione o dia e o horário
+              </Text>
+                <TextInput
+                  value={date}
+                  onChangeText={(text) => setDate(formatDate(text))}
+                  placeholder="Ex: 12/05"
+                  keyboardType="numeric"
+                  style={styles.input}
+                />
+              <TextInput
+                value={time}
+                onChangeText={(text) => setTime(formatTime(text))}
+                placeholder="Ex: 14:30"
+                keyboardType="numeric"
+                style={styles.input}
+              />
+              <TouchableOpacity onPress={handleReserve} style={styles.button}>
+                <Text style={styles.buttonText}>Reservar</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
+
         </View>
       </Modal>
     </SafeAreaView>
@@ -222,11 +291,36 @@ const styles = StyleSheet.create({
   address: { fontSize: 12, color: '#888' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { width: '80%', backgroundColor: '#fff', borderRadius: 8, padding: 16 },
+  successModalContent: { width: '80%', backgroundColor: '#f7f7f7', borderRadius: 8, padding: 16 },
   modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
   modalInstruction: { fontSize: 14, marginBottom: 8 },
   input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 4, padding: 8, marginBottom: 8 },
   modalButtonWrapper: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
   modalCancelButton: { flex: 1, marginRight: 8, paddingVertical: 8, backgroundColor: '#c74444', borderRadius: 4, alignItems: 'center' },
   reservationButton: { flex: 1, marginLeft: 8, paddingVertical: 8, backgroundColor: '#18181b', borderRadius: 4, alignItems: 'center' },
-  reservationButtonText: { color: '#ffffff', fontSize: 16 }
+  button: { flex: 1, marginLeft: 8, paddingVertical: 8, backgroundColor: '#18181b', borderRadius: 4, alignItems: 'center' },
+  reservationButtonText: { color: '#ffffff', fontSize: 16 },
+  buttonText: { color: '#ffffff', fontSize: 16 },
+  successText: {
+    fontSize: 18,
+    color: '#30b153',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  successIcon: {
+    width: 150,
+    height: 150,
+  },
+  successIconWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  }
+  
 });
