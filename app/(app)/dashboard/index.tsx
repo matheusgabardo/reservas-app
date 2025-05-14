@@ -201,8 +201,14 @@ export default function HomeScreen() {
                 />
               </View>
               <Text style={styles.successText}>{successMessage}</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.button}>
-                <Text style={styles.buttonText}>Fechar</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setModalVisible(false);
+                  router.push('/reservation');
+                }}
+              >
+                <Text style={styles.buttonText}>Ver minha reserva</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -247,6 +253,7 @@ export default function HomeScreen() {
                   onChangeText={(text) => setDate(formatDate(text))}
                   placeholder="Ex: 12/05"
                   keyboardType="numeric"
+                  placeholderTextColor="#000"
                   style={styles.input}
                 />
               <TextInput
@@ -254,6 +261,7 @@ export default function HomeScreen() {
                 onChangeText={(text) => setTime(formatTime(text))}
                 placeholder="Ex: 14:30"
                 keyboardType="numeric"
+                placeholderTextColor="#000"
                 style={styles.input}
               />
               <TouchableOpacity onPress={handleReserve} style={styles.button}>
@@ -298,7 +306,7 @@ const styles = StyleSheet.create({
   modalButtonWrapper: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
   modalCancelButton: { flex: 1, marginRight: 8, paddingVertical: 8, backgroundColor: '#c74444', borderRadius: 4, alignItems: 'center' },
   reservationButton: { flex: 1, marginLeft: 8, paddingVertical: 8, backgroundColor: '#18181b', borderRadius: 4, alignItems: 'center' },
-  button: { flex: 1, marginLeft: 8, paddingVertical: 8, backgroundColor: '#18181b', borderRadius: 4, alignItems: 'center' },
+  button: { marginLeft: 8, paddingVertical: 8, backgroundColor: '#18181b', borderRadius: 4, alignItems: 'center' },
   reservationButtonText: { color: '#ffffff', fontSize: 16 },
   buttonText: { color: '#ffffff', fontSize: 16 },
   successText: {

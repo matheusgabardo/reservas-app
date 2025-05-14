@@ -29,10 +29,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 60,
+        height: 100,
         paddingVertical: 4,
         paddingHorizontal: 16,
-        backgroundColor: '#171717'
+        backgroundColor: '#171717',
+        paddingTop: 40
     },
     welcome: {
         fontSize: 18,

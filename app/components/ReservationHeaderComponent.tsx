@@ -14,6 +14,8 @@ export default function HeaderComponent() {
                         style={styles.arrowIcon}
                         resizeMode="contain"
                     />
+                </Link>
+                <Link href={'/(app)/dashboard'} style={styles.returnButton}>
                     Voltar
                 </Link>
             </View>
@@ -23,9 +25,9 @@ export default function HeaderComponent() {
 const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        height: 60,
+        height: 100,
+        paddingTop: 40,
         paddingVertical: 4,
         paddingHorizontal: 16,
         backgroundColor: '#171717'

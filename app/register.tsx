@@ -37,7 +37,8 @@ export default function RegisterScreen() {
           <TextCustom style={styles.headline} fontSize={38}>Registro</TextCustom>
           <TextCustom style={styles.label}>Nome completo</TextCustom>
           <TextInput 
-            placeholder='Digite seu nome' 
+            placeholder='Digite seu nome'
+            placeholderTextColor="#ffffff"
             style={styles.input}
             value={name}
             onChangeText={(text) => setName(text)}
@@ -45,7 +46,8 @@ export default function RegisterScreen() {
 
           <TextCustom style={styles.label}>Seu e-mail</TextCustom>
           <TextInput 
-            placeholder='Digite seu e-mail...' 
+            placeholder='Digite seu e-mail...'
+            placeholderTextColor="#ffffff"
             style={styles.input}
             value={email}
             onChangeText={(text) => setEmail(text)}
@@ -53,6 +55,7 @@ export default function RegisterScreen() {
 
           <TextCustom style={styles.label}>Crie uma senha</TextCustom>
           <TextInput
+            placeholderTextColor="#ffffff"
             style={styles.input}
             placeholder="Digite sua senha"
             value={password}
@@ -62,6 +65,7 @@ export default function RegisterScreen() {
           
           <TextCustom style={styles.label}>Confirme sua senha</TextCustom>
           <TextInput
+            placeholderTextColor="#ffffff"
             style={styles.input}
             placeholder="Digite sua senha"
             value={confirmPassword}
