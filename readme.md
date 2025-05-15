@@ -11,3 +11,4 @@ npx expo start --android
 npx expo start
 
 <!-- gerar apk -->
+npm install -g eas-cli
